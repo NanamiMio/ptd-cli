@@ -76,20 +76,61 @@ jobs:
       - name: Update Homebrew Formula & Scoop Manifest
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
-          SHA=$(curl -sL "$SOURCE_URL" | sha256sum | awk '{print $1}')
+          BASE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}"
 
-          # Update Homebrew Formula (Homepage, URL, SHA256)
-          sed -i "s|homepage \".*\"|homepage \"https://github.com/${GITHUB_REPOSITORY}\"|" Formula/ptd-cli.rb
-          sed -i "s|url \".*\"|url \"${SOURCE_URL}\"|" Formula/ptd-cli.rb
-          sed -i "s|sha256 \".*\"|sha256 \"${SHA}\"|" Formula/ptd-cli.rb
+          # Calculate SHA256 for all release packages
+          MACOS_ARM64_SHA=$(curl -sL "${BASE_URL}/ptd-cli-${GITHUB_REF_NAME}-aarch64-apple-darwin.tar.gz" | sha256sum | awk '{print $1}')
+          MACOS_X86_64_SHA=$(curl -sL "${BASE_URL}/ptd-cli-${GITHUB_REF_NAME}-x86_64-apple-darwin.tar.gz" | sha256sum | awk '{print $1}')
+          LINUX_ARM64_SHA=$(curl -sL "${BASE_URL}/ptd-cli-${GITHUB_REF_NAME}-aarch64-unknown-linux-gnu.tar.gz" | sha256sum | awk '{print $1}')
+          LINUX_X86_64_SHA=$(curl -sL "${BASE_URL}/ptd-cli-${GITHUB_REF_NAME}-x86_64-unknown-linux-gnu.tar.gz" | sha256sum | awk '{print $1}')
+          WINDOWS_X86_64_SHA=$(curl -sL "${BASE_URL}/ptd-cli-${GITHUB_REF_NAME}-x86_64-pc-windows-msvc.zip" | sha256sum | awk '{print $1}')
 
-          # Update Scoop Manifest (Version, URL, Homepage, Autoupdate)
+          # Generate binary Homebrew Formula (0 build dependencies, instant download)
+          cat <<EOF > Formula/ptd-cli.rb
+          class PtdCli < Formula
+            desc "CLI for PT-Depiler browser extension via Native Messaging"
+            homepage "https://github.com/${GITHUB_REPOSITORY}"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/${GITHUB_REPOSITORY}/releases/download/v#{version}/ptd-cli-v#{version}-aarch64-apple-darwin.tar.gz"
+                sha256 "${MACOS_ARM64_SHA}"
+              else
+                url "https://github.com/${GITHUB_REPOSITORY}/releases/download/v#{version}/ptd-cli-v#{version}-x86_64-apple-darwin.tar.gz"
+                sha256 "${MACOS_X86_64_SHA}"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/${GITHUB_REPOSITORY}/releases/download/v#{version}/ptd-cli-v#{version}-aarch64-unknown-linux-gnu.tar.gz"
+                sha256 "${LINUX_ARM64_SHA}"
+              else
+                url "https://github.com/${GITHUB_REPOSITORY}/releases/download/v#{version}/ptd-cli-v#{version}-x86_64-unknown-linux-gnu.tar.gz"
+                sha256 "${LINUX_X86_64_SHA}"
+              end
+            end
+
+            def install
+              bin.install "ptd"
+              bin.install "ptd-host"
+            end
+
+            test do
+              assert_match "ptd", shell_output("#{bin}/ptd --help")
+            end
+          end
+          EOF
+
+          # Update Scoop Manifest (Version, URL, Hash, Homepage, Autoupdate)
           jq --arg v "$VERSION" \
              --arg u "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/ptd-cli-${GITHUB_REF_NAME}-x86_64-pc-windows-msvc.zip" \
+             --arg hash "$WINDOWS_X86_64_SHA" \
              --arg auto_u "https://github.com/${GITHUB_REPOSITORY}/releases/download/v\$version/ptd-cli-v\$version-x86_64-pc-windows-msvc.zip" \
              --arg hp "https://github.com/${GITHUB_REPOSITORY}" \
-             '.version = $v | .homepage = $hp | .architecture["64bit"].url = $u | .autoupdate.architecture["64bit"].url = $auto_u' \
+             '.version = $v | .homepage = $hp | .architecture["64bit"].url = $u | .architecture["64bit"].hash = $hash | .autoupdate.architecture["64bit"].url = $auto_u' \
              bucket/ptd-cli.json > bucket/ptd-cli.tmp.json && mv bucket/ptd-cli.tmp.json bucket/ptd-cli.json
 
           # Commit and push both in a single commit

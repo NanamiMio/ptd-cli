@@ -1,14 +1,32 @@
 class PtdCli < Formula
   desc "CLI for PT-Depiler browser extension via Native Messaging"
   homepage "https://github.com/pt-plugins/ptd-cli"
-  url "https://github.com/pt-plugins/ptd-cli/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "8dbf588e0fe3b59c528f6ecfbd28e69abce61cd9ab47143d369112406bb708f4"
+  version "0.1.0"
   license "MIT"
 
-  depends_on "rust" => :build
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/pt-plugins/ptd-cli/releases/download/v#{version}/ptd-cli-v#{version}-aarch64-apple-darwin.tar.gz"
+      sha256 "7d152087fcbd739f7b3fa9a75abed5073a1920e2cbac378407167dd1d003b2c5"
+    else
+      url "https://github.com/pt-plugins/ptd-cli/releases/download/v#{version}/ptd-cli-v#{version}-x86_64-apple-darwin.tar.gz"
+      sha256 "032e5748c896d6eb0e2e1f75cc1be3327c255f810b6158082fa40ad08f4f4b4b"
+    end
+  end
+
+  on_linux do
+    if Hardware::CPU.arm?
+      url "https://github.com/pt-plugins/ptd-cli/releases/download/v#{version}/ptd-cli-v#{version}-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "0d2beb0718cd8fcd268e104ad777f3fb61af628497874c8bc9fa301f34776809"
+    else
+      url "https://github.com/pt-plugins/ptd-cli/releases/download/v#{version}/ptd-cli-v#{version}-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "b1398a3374ca509be107d0a82ddf379a78f5a2ccf892b6d2b5fb586290d4203c"
+    end
+  end
 
   def install
-    system "cargo", "install", *std_cargo_args
+    bin.install "ptd"
+    bin.install "ptd-host"
   end
 
   test do
