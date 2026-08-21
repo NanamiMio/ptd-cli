@@ -40,14 +40,14 @@ class PtdCli < Formula
 
     if is_zh
       <<~EOS
-        为浏览器注册原生通信桥 (Native Messaging Host)：
+        要完成配置，请为您的浏览器注册原生通信桥 (Native Messaging Host)：
           ptd install --browser chrome
           ptd install --browser edge
           ptd install --browser firefox
       EOS
     else
       <<~EOS
-        Register the native messaging host for your browser:
+        To complete setup, register the native messaging host for your browser:
           ptd install --browser chrome
           ptd install --browser edge
           ptd install --browser firefox

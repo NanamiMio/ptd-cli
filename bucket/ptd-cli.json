@@ -14,7 +14,7 @@
     "ptd-host.exe"
   ],
   "notes": [
-    "Register the native messaging host for your browser / 为浏览器注册原生通信桥：",
+    "To complete setup, register the native messaging host for your browser / 要完成配置，请为浏览器注册原生通信桥：",
     "  ptd install --browser chrome",
     "  ptd install --browser edge",
     "  ptd install --browser firefox"
