@@ -33,10 +33,8 @@ Three components:
 
 ```bash
 # Add tap and install
-brew install pt-plugins/ptd-cli/ptd-cli
-
-# Or install directly via Formula URL
-brew install https://raw.githubusercontent.com/pt-plugins/ptd-cli/master/Formula/ptd-cli.rb
+brew tap pt-plugins/ptd-cli https://github.com/pt-plugins/ptd-cli
+brew install ptd-cli
 ```
 
 #### Scoop (Windows)

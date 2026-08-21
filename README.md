@@ -35,10 +35,8 @@ CLI <-- Unix socket <-- ptd-host <--stdin-- Chrome <------+
 
 ```bash
 # 添加 tap 并安装
-brew install pt-plugins/ptd-cli/ptd-cli
-
-# 或直接通过 Formula 安装
-brew install https://raw.githubusercontent.com/pt-plugins/ptd-cli/master/Formula/ptd-cli.rb
+brew tap pt-plugins/ptd-cli https://github.com/pt-plugins/ptd-cli
+brew install ptd-cli
 ```
 
 #### Scoop (Windows)
