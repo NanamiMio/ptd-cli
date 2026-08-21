@@ -119,14 +119,23 @@ jobs:
             end
 
             def caveats
-              <<~EOS
-                To complete setup, register the native messaging host for your browser:
-                  ptd install --browser chrome
-                  ptd install --browser edge
-                  ptd install --browser firefox
+              is_zh = [ENV["LANG"], ENV["LC_ALL"], ENV["LC_MESSAGES"]].compact.any? { |l| l.downcase.start_with?("zh") }
 
-                Note: Fully restart your browser after registration to activate.
-              EOS
+              if is_zh
+                <<~EOS
+                  为浏览器注册原生通信桥 (Native Messaging Host)：
+                    ptd install --browser chrome
+                    ptd install --browser edge
+                    ptd install --browser firefox
+                EOS
+              else
+                <<~EOS
+                  Register the native messaging host for your browser:
+                    ptd install --browser chrome
+                    ptd install --browser edge
+                    ptd install --browser firefox
+                EOS
+              end
             end
 
             test do

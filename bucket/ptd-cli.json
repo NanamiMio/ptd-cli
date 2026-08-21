@@ -14,12 +14,10 @@
     "ptd-host.exe"
   ],
   "notes": [
-    "To complete setup, register the native messaging host for your browser:",
+    "Register the native messaging host for your browser / 为浏览器注册原生通信桥：",
     "  ptd install --browser chrome",
     "  ptd install --browser edge",
-    "  ptd install --browser firefox",
-    "",
-    "Note: Fully restart your browser after registration to activate."
+    "  ptd install --browser firefox"
   ],
   "checkver": "github",
   "autoupdate": {
