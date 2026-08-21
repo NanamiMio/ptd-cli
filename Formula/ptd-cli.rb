@@ -30,7 +30,13 @@ class PtdCli < Formula
   end
 
   def caveats
-    is_zh = [ENV["LANG"], ENV["LC_ALL"], ENV["LC_MESSAGES"]].compact.any? { |l| l.downcase.start_with?("zh") }
+    is_zh = false
+    if OS.mac?
+      locale = Utils.popen_read("defaults", "read", "-g", "AppleLocale") rescue ""
+      is_zh = locale.strip.downcase.start_with?("zh")
+    else
+      is_zh = [ENV["LANG"], ENV["LC_ALL"], ENV["LC_MESSAGES"]].compact.any? { |l| l.downcase.start_with?("zh") }
+    end
 
     if is_zh
       <<~EOS
