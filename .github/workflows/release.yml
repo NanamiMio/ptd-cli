@@ -118,6 +118,17 @@ jobs:
               bin.install "ptd-host"
             end
 
+            def caveats
+              <<~EOS
+                To complete setup, register the native messaging host for your browser:
+                  ptd install --browser chrome
+                  ptd install --browser edge
+                  ptd install --browser firefox
+
+                Note: Fully restart your browser after registration to activate.
+              EOS
+            end
+
             test do
               assert_match "ptd", shell_output("#{bin}/ptd --help")
             end

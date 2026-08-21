@@ -13,6 +13,14 @@
     "ptd.exe",
     "ptd-host.exe"
   ],
+  "notes": [
+    "To complete setup, register the native messaging host for your browser:",
+    "  ptd install --browser chrome",
+    "  ptd install --browser edge",
+    "  ptd install --browser firefox",
+    "",
+    "Note: Fully restart your browser after registration to activate."
+  ],
   "checkver": "github",
   "autoupdate": {
     "architecture": {
