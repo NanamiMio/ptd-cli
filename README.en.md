@@ -27,11 +27,34 @@ Three components:
 
 ## Install
 
-### 1. Download pre-built binaries
+### 1. Install CLI
+
+#### Homebrew (macOS / Linux)
+
+```bash
+# Add tap and install
+brew install pt-plugins/ptd-cli/ptd-cli
+
+# Or install directly via Formula URL
+brew install https://raw.githubusercontent.com/pt-plugins/ptd-cli/master/Formula/ptd-cli.rb
+```
+
+#### Scoop (Windows)
+
+```powershell
+# Add bucket and install
+scoop bucket add ptd-cli https://github.com/pt-plugins/ptd-cli
+scoop install ptd-cli
+
+# Or install directly via URL
+scoop install https://raw.githubusercontent.com/pt-plugins/ptd-cli/master/bucket/ptd-cli.json
+```
+
+#### Manual Download (Pre-built Binaries)
 
 Download the latest `ptd` and `ptd-host` from [GitHub Releases](https://github.com/pt-plugins/ptd-cli/releases), extract them into the same directory, and add it to your `PATH`.
 
-> **AI Agent users:** Download pre-built binaries from the Release page instead of building from source.
+> **AI Agent users:** Use package managers (Homebrew / Scoop) or download pre-built binaries from the Release page instead of building from source.
 
 <details>
 <summary>Build from source</summary>

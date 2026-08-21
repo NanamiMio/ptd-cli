@@ -63,3 +63,38 @@ jobs:
           files: |
             ptd-cli-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
             ptd-cli-${{ github.ref_name }}-${{ matrix.target }}.zip
+
+  bump-manifests:
+    name: Bump Homebrew Formula & Scoop Manifest
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Update Homebrew Formula & Scoop Manifest
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          SHA=$(curl -sL "$SOURCE_URL" | sha256sum | awk '{print $1}')
+
+          # Update Homebrew Formula (Homepage, URL, SHA256)
+          sed -i "s|homepage \".*\"|homepage \"https://github.com/${GITHUB_REPOSITORY}\"|" Formula/ptd-cli.rb
+          sed -i "s|url \".*\"|url \"${SOURCE_URL}\"|" Formula/ptd-cli.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA}\"|" Formula/ptd-cli.rb
+
+          # Update Scoop Manifest (Version, URL, Homepage, Autoupdate)
+          jq --arg v "$VERSION" \
+             --arg u "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/ptd-cli-${GITHUB_REF_NAME}-x86_64-pc-windows-msvc.zip" \
+             --arg auto_u "https://github.com/${GITHUB_REPOSITORY}/releases/download/v\$version/ptd-cli-v\$version-x86_64-pc-windows-msvc.zip" \
+             --arg hp "https://github.com/${GITHUB_REPOSITORY}" \
+             '.version = $v | .homepage = $hp | .architecture["64bit"].url = $u | .autoupdate.architecture["64bit"].url = $auto_u' \
+             bucket/ptd-cli.json > bucket/ptd-cli.tmp.json && mv bucket/ptd-cli.tmp.json bucket/ptd-cli.json
+
+          # Commit and push both in a single commit
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/ptd-cli.rb bucket/ptd-cli.json
+          git commit -m "chore(release): bump homebrew and scoop to ${GITHUB_REF_NAME} [skip ci]" || exit 0
+          git push origin HEAD:${{ github.event.repository.default_branch }}
